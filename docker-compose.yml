@@ -1,0 +1,66 @@
+version: "3"
+services:
+
+  portainer:
+    image: portainer/portainer-ce:2.18.4
+    container_name: Portainer
+    ports:
+      - 9443:9443
+    volumes:
+      - portainer:/data/portainer
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - app_net
+    restart: unless-stopped
+
+  postgres:
+    container_name: Postgres
+    image: postgres:alpine3.18
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      PGDATA: /data/postgres
+    volumes:
+       - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - app_net
+    restart: unless-stopped
+  
+  pgadmin:
+    container_name: pgAdmin4
+    image: dpage/pgadmin4:7.5
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@strypes.pt}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+       - pgadmin:/var/lib/pgadmin
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    networks:
+      - app_net
+    restart: unless-stopped
+
+  streamlit:
+    container_name: Streamlit
+    build:
+      context: .
+      dockerfile: streamlit.Dockerfile
+    volumes:
+       - streamlit:/data/streamlit
+    ports:
+      - "8501:8501"
+    networks:
+      - app_net
+    
+networks:
+  app_net:
+    driver: bridge
+
+volumes:
+  portainer:
+  postgres:
+  pgadmin:
+  streamlit:
