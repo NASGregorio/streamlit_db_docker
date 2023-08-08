@@ -5,7 +5,7 @@ services:
     image: portainer/portainer-ce:2.18.4
     container_name: Portainer
     ports:
-      - 9443:9443
+      - "${PORTAINER_PORT:-9443}:${PORTAINER_PORT:-9443}"
     volumes:
       - portainer:/data/portainer
       - /var/run/docker.sock:/var/run/docker.sock
@@ -23,7 +23,7 @@ services:
     volumes:
        - postgres:/data/postgres
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:${POSTGRES_PORT:-5432}"
     networks:
       - app_net
     restart: unless-stopped
@@ -51,7 +51,25 @@ services:
     volumes:
        - streamlit:/data/streamlit
     ports:
-      - "8501:8501"
+      - "${STREAMLIT_PRD_PORT:-8501}:${STREAMLIT_PRD_PORT:-8501}"
+    depends_on:
+      - postgres
+    networks:
+      - app_net
+
+  streamlit_dev:
+    container_name: StreamlitDev
+    profiles: ["dev"]
+    build:
+      context: .
+      dockerfile: streamlit.dev.Dockerfile
+    volumes:
+       - streamlitdev:/data/streamlit
+       - ../app/:/app
+    ports:
+      - "${STREAMLIT_DEV_PORT:-8502}:${STREAMLIT_DEV_PORT:-8502}"
+    depends_on:
+      - postgres
     networks:
       - app_net
     
@@ -64,3 +82,4 @@ volumes:
   postgres:
   pgadmin:
   streamlit:
+  streamlitdev:
