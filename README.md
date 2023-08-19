@@ -2,5 +2,11 @@
 Docker compose with streamlit, postgres, pgadmin, portainer
 
 # Usage
-docker compose up
-docker compose --profile dev up
+## Development
+```docker compose --profile prd up --build```
+
+## Production
+```docker compose --profile dev up --build```
+
+To spin up pgadmin4 while in production:
+ - ```docker compose up pgadmin```
