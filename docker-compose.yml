@@ -61,6 +61,7 @@ services:
       - postgres
     networks:
       - lanet
+    restart: unless-stopped
 
   streamlit_dev:
     container_name: StreamlitDev
